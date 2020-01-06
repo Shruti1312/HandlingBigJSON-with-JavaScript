@@ -13,3 +13,6 @@ It is an HTML/JavaScript program, which takes the URL of a JSON document contain
 parses the JSON file, and extracts the list of top car manufacturers, displaying them in a table. 
 The JavaScript program will be embedded in an HTML file so that it can be executed within a browser. 
 </p>
+
+
+<h3>Note: The folder contains many kinds of JSON files to show different way of handling JSON.</h3>
