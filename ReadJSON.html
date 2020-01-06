@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style type="text/css">
+        h2 {
+            font: 18 px "Lato", sans - serif;
+            font-weight: bold;
+            text-shadow: 1 px 1 px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .center {
+            text-align: center;
+            font: 24 px "Lato", sans - serif;
+            font-weight: bold;
+            margin-left: 10%;
+            margin-right: 10%;
+            width: 80%;
+        }
+        
+        form.search input[type=text] {
+            padding: 10 px;
+            font-size: 17 px;
+            border: 2px solid rgb(163, 198, 236);
+            float: left;
+            width: 28%;
+            background: white;
+            margin-left: 36%;
+            margin-right: 36%;
+            margin-bottom: 12px;
+            height: 18px;
+        }
+        
+        form.search button {
+            float: left;
+            background: rgb(240, 240, 240);
+            color: black;
+            font-size: 17px;
+            font-weight: bold;
+            border: 1px solid rgb(131, 128, 128);
+            cursor: pointer;
+            margin-left: 43%;
+            margin-right: 43%;
+            width: 16%;
+            border-radius: 5px;
+            height: 24px;
+        }
+    </style>
+    <script type="text/javascript">
+        var jsonDoc;
+
+        function loadJSON(url) {
+            try {
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("GET", url, false); //open, send, responseText are
+                xmlhttp.send(); //properties of XMLHTTPRequest
+                jsonDoc = xmlhttp.responseText;
+            } catch (err) {
+                throw "There seems to some problem in locating the URL. File does not exist. Please check again your URL!"
+            }
+
+            return jsonDoc;
+        }
+
+        function LoadJSONUrl() {
+            try {
+                var url = document.getElementById("fileLocation").value;
+                if (url) {
+                    loadJSON(url);
+                    ShowCars();
+                } else {
+                    throw "Filename left empty! Please enter JSON Filename in the above search box !!"
+                }
+            } catch (err) {
+                alert(err)
+            }
+
+        }
+
+        function ShowCars() {
+            try {
+                var obj = JSON.parse(jsonDoc);
+            } catch (err) {
+                throw "Invalid JSON File ! Error in Parsing. Please Check!!"
+            }
+
+            var txt = "";
+            var header = obj.Mainline.Table.Header.Data;
+            var rows = obj.Mainline.Table.Row;
+            txt += "<table border='1' width='100%' height='100%'>"
+            txt += "<tr>";
+
+            if (header === undefined) {
+                throw "Header values are missing in JSON!!"
+            }
+            for (var i = 0; i < header.length; i++) {
+                txt += "<td nowrap><b>" + header[i] + "</b></td>";
+            }
+
+            txt += "</tr>";
+            if (rows === undefined) {
+                throw "There are no entries for manufactures in JSON ! No Rows tag found !!"
+            }
+
+            var carsTag = ["Rank", "Group", "Hubs", "Vehicles", "HomePage", "Logo"];
+
+            for (var j = 0; j < rows.length; j++) {
+                txt += "<tr>";
+                var rowInfo = rows[j];
+                var k = 0;
+
+                for (var r in rowInfo) {
+                    var key = carsTag[k];
+                    k++;
+                    var insertRow = rowInfo[key];
+                    txt += "<td>";
+                    if (insertRow != null) {
+                        switch (key) {
+                            case "Hubs":
+                                txt = showHubs(txt, insertRow.Hub);
+                                break;
+                            case "HomePage":
+                                txt += "<a href = \"" + rowInfo[key] + "\">" + rowInfo[key] + "</a>";
+                                break;
+                            case "Logo":
+                                txt += "<img src = \"" + rowInfo[key] + "\" height=\"150px\" width=\"150px\">";
+                                break;
+                            default:
+                                txt += rowInfo[key];
+                                break;
+                        }
+                    } else {
+                        txt += "";
+                    }
+                    txt += "</td>";
+                }
+                txt += "</tr>";
+            }
+
+            var left = (screen.width - 1100) / 2;
+            var top = (screen.height - 1000) / 4;
+
+            var newWindow = window.open('/', 'myWindow', 'scrollbars=1,resizable=1,height=1000,width=1100,top=' + top + ', left=' + left);
+            newWindow.document.open("text/html");
+            newWindow.document.write(txt);
+            newWindow.document.close();
+        }
+
+        function showHubs(str, hubs) {
+            str += "<ul>";
+            for (var h in hubs) {
+                if (h == 0) {
+                    str += "<li><b>" + hubs[h] + "</b></li>"
+                } else {
+                    str += "<li>" + hubs[h] + "</li>";
+                }
+            }
+            str += "</ul>";
+            return str;
+        }
+    </script>
+</head>
+
+<body>
+    <div style="height:100%;width:70%;margin-left:15%;margin-right:15%;margin-top:10%;">
+        <form class="search">
+            <center>
+                <h2> Enter URL for largest manufacturers by production (2017) List JSON File </h2>
+            </center>
+            <input id="fileLocation" type="text">
+            <button type="submit" onclick="LoadJSONUrl()">Submit Query</button>
+        </form>
+    </div>
+</body>
+
+</html>
